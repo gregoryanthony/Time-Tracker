@@ -19,14 +19,11 @@ body{padding-top:var(--safe-top);padding-bottom:var(--safe-bottom)}
 button,input{font-family:inherit}
 input::placeholder{color:rgba(255,255,255,0.15)}
 #app{max-width:480px;margin:0 auto;height:100%;display:flex;flex-direction:column;position:relative}
-.header{flex-shrink:0;background:rgba(8,10,12,0.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--border-light);padding:16px 20px 14px;z-index:50}
-.header-title{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px}
-.header-title h1{font-size:24px;font-weight:300;letter-spacing:1px;color:var(--text)}
-.header-title span{font-size:9px;color:var(--text-dim);letter-spacing:2.5px;text-transform:uppercase;font-weight:500}
-.tabs{display:flex}
-.tab-btn{flex:1;padding:8px 0;border:none;background:transparent;cursor:pointer;font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;transition:all 0.2s}
-.tab-btn.active{color:var(--text);border-bottom:1px solid var(--accent)}
-.tab-btn:not(.active){color:var(--text-dim);border-bottom:1px solid var(--border-light)}
+.header{flex-shrink:0;background:rgba(8,10,12,0.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--border-light);padding:12px 20px 12px;z-index:50}
+.tabs{display:flex;gap:6px;background:rgba(255,255,255,0.04);border-radius:20px;padding:3px}
+.tab-btn{flex:1;padding:7px 16px;border:none;background:transparent;border-radius:17px;cursor:pointer;font-size:11px;font-weight:500;letter-spacing:0.5px;transition:all 0.2s}
+.tab-btn.active{color:var(--text);background:rgba(255,255,255,0.1)}
+.tab-btn:not(.active){color:var(--text-dim);background:transparent}
 .day-nav{display:flex;align-items:center;justify-content:space-between;margin-top:14px}
 .nav-btn{width:32px;height:32px;background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--text-muted);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .day-label{text-align:center}
@@ -43,6 +40,17 @@ input::placeholder{color:rgba(255,255,255,0.15)}
 .slot-bar{width:2px;height:24px;border-radius:1px;opacity:0.7;flex-shrink:0}
 .slot-label-main{font-size:12px;font-weight:500;letter-spacing:-0.1px;opacity:0.9}
 .slot-label-sub{font-size:9px;color:var(--text-dim);letter-spacing:0.8px;text-transform:uppercase;margin-top:1px}
+.time-slot.predicted{position:relative}
+.time-slot.predicted::before{content:'';position:absolute;inset:0;opacity:0.06;background:repeating-linear-gradient(135deg,transparent,transparent 3px,currentColor 3px,currentColor 4px);pointer-events:none}
+.pred-actions{display:flex;gap:6px;margin-left:auto;flex-shrink:0;align-items:center}
+.pred-btn{width:24px;height:24px;border-radius:12px;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;transition:all 0.15s}
+.pred-approve{background:rgba(107,158,126,0.15);color:rgba(107,188,140,0.7)}
+.pred-approve:active{background:rgba(107,158,126,0.3)}
+.pred-dismiss{background:rgba(255,100,100,0.08);color:rgba(255,140,140,0.5)}
+.pred-dismiss:active{background:rgba(255,100,100,0.2)}
+.pred-edit{background:rgba(255,255,255,0.04);color:var(--text-dim)}
+.pred-edit:active{background:rgba(255,255,255,0.08)}
+.slot-label-predicted{font-size:8px;color:var(--text-dim);letter-spacing:0.8px;text-transform:uppercase;margin-top:1px;font-style:italic}
 .now-line{position:absolute;left:0;right:0;height:1px;opacity:0.4;background:var(--accent);z-index:10;pointer-events:none}
 .now-dot{position:absolute;left:12px;top:-3px;width:6px;height:6px;border-radius:3px;background:var(--accent);opacity:0.6}
 .selection-bar{position:fixed;bottom:calc(20px + var(--safe-bottom));left:50%;transform:translateX(-50%);padding:8px 20px;border-radius:20px;background:rgba(107,158,158,0.2);backdrop-filter:blur(20px);border:1px solid rgba(107,158,158,0.3);color:var(--accent);font-size:11px;font-weight:500;letter-spacing:0.5px;z-index:60;white-space:nowrap;animation:fadeIn 0.15s ease}
@@ -137,7 +145,6 @@ input::placeholder{color:rgba(255,255,255,0.15)}
 <body>
 <div id="app">
 <div class="header">
-<div class="header-title"><h1>Time</h1><span>Tracker</span></div>
 <div class="tabs">
 <button class="tab-btn active" id="tab-day" onclick="switchTab('day')">Day</button>
 <button class="tab-btn" id="tab-summary" onclick="switchTab('summary')">Summary</button>
@@ -182,6 +189,76 @@ let pressTimer=null,pressStartIdx=null,selectionMode=false,selectionStartIdx=nul
 let pressStartY=0,pressStartX=0,pressMovedTooFar=false;
 let touchStartX=0,touchStartY=0;
 let summaryTimeframe='week',summaryCustomStart='',summaryCustomEnd='',summaryPercentMode='tracked',summaryExpandedCats={};
+let dismissedPredictions=JSON.parse(localStorage.getItem('tt-dismissed'))||{};
+
+function saveDismissed(){localStorage.setItem('tt-dismissed',JSON.stringify(dismissedPredictions))}
+
+/* ═══════ PREDICTION ENGINE ═══════ */
+function getPredictions(targetDate){
+const predictions={};
+const targetDow=targetDate.getDay();
+const targetKey=dk(targetDate);
+
+// Algorithm 1: Weekday patterns — check last 4 same-weekday occurrences
+const weekdayDates=[];
+let d=addD(targetDate,-1);
+for(let i=0;i<28&&weekdayDates.length<4;i++){
+if(d.getDay()===targetDow)weekdayDates.push(dk(d));
+d=addD(d,-1);
+}
+
+if(weekdayDates.length>=3){
+for(let slot=0;slot<48;slot++){
+const counts={};
+let total=0;
+weekdayDates.forEach(dkey=>{
+const e=entries[dkey]?entries[dkey][slot]:null;
+if(e&&e.category){
+const k=`${e.category}|${e.subcategory||''}`;
+counts[k]=(counts[k]||0)+1;
+total++;
+}
+});
+// Need 3 of 4 (or 2 of 3, or 3 of 3) matching same activity
+Object.entries(counts).forEach(([k,c])=>{
+const needed=weekdayDates.length>=4?3:2;
+if(c>=needed){
+const[cat,sub]=k.split('|');
+predictions[slot]={category:cat,subcategory:sub||null,confidence:c/weekdayDates.length,source:'weekday'};
+}
+});
+}
+}
+
+// Algorithm 2: Daily patterns — check last 7 days, need 5 of 7
+const dailyDates=[];
+d=addD(targetDate,-1);
+for(let i=0;i<7;i++){dailyDates.push(dk(d));d=addD(d,-1)}
+
+for(let slot=0;slot<48;slot++){
+if(predictions[slot])continue; // weekday pattern already found, it's more specific
+const counts={};
+dailyDates.forEach(dkey=>{
+const e=entries[dkey]?entries[dkey][slot]:null;
+if(e&&e.category){
+const k=`${e.category}|${e.subcategory||''}`;
+counts[k]=(counts[k]||0)+1;
+}
+});
+Object.entries(counts).forEach(([k,c])=>{
+if(c>=5){
+const[cat,sub]=k.split('|');
+predictions[slot]={category:cat,subcategory:sub||null,confidence:c/7,source:'daily'};
+}
+});
+}
+
+// Filter out dismissed predictions for this date
+const dismissed=dismissedPredictions[targetKey]||{};
+Object.keys(dismissed).forEach(slot=>{delete predictions[slot]});
+
+return predictions;
+}
 
 const DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 const DAYS_SHORT=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
@@ -215,19 +292,60 @@ function renderDay(){
 document.getElementById('day-label-date').textContent=formatD(currentDate);
 document.getElementById('day-label-today').className=isToday()?'day-label-today':'day-label-today hidden';
 const key=dk(currentDate),dayE=entries[key]||{},container=document.getElementById('slots-container');
+const predictions=getPredictions(currentDate);
 let html='';
 if(isToday()){const now=new Date(),mins=now.getHours()*60+now.getMinutes(),top=(mins/30)*44;html+=`<div class="now-line" style="top:${top}px"><div class="now-dot"></div></div>`}
 for(let h=0;h<24;h++){for(let half=0;half<2;half++){
-const idx=h*2+half,entry=dayE[idx],cat=entry?categories.find(c=>c.id===entry.category):null;
+const idx=h*2+half,entry=dayE[idx],pred=predictions[idx];
+const hasEntry=entry&&entry.category;
+const cat=hasEntry?categories.find(c=>c.id===entry.category):null;
+const predCat=(!hasEntry&&pred)?categories.find(c=>c.id===pred.category):null;
+const showPred=!hasEntry&&predCat;
 const time=fmt12(h,half),hourClass=half===0?' hour-start':'',timeClass=half===0?'hour':'half';
+const predClass=showPred?' predicted':'';
 let inner=`<span class="slot-time ${timeClass}">${time}</span>`;
-if(cat){inner+=`<div class="slot-bar" style="background:${cat.color}"></div><div><div class="slot-label-main" style="color:${cat.color}">${entry.subcategory||cat.name}</div>`;if(entry.subcategory)inner+=`<div class="slot-label-sub">${cat.name}</div>`;inner+='</div>'}
-const bg=cat?`background:linear-gradient(90deg,${cat.color}0a,${cat.color}14,${cat.color}08)`:'';
-html+=`<div class="time-slot${hourClass}" data-idx="${idx}" style="${bg}">${inner}</div>`
+if(cat){
+inner+=`<div class="slot-bar" style="background:${cat.color}"></div><div><div class="slot-label-main" style="color:${cat.color}">${entry.subcategory||cat.name}</div>`;
+if(entry.subcategory)inner+=`<div class="slot-label-sub">${cat.name}</div>`;
+inner+='</div>';
+}else if(showPred){
+inner+=`<div class="slot-bar" style="background:${predCat.color};opacity:0.35"></div><div><div class="slot-label-main" style="color:${predCat.color};opacity:0.45">${pred.subcategory||predCat.name}</div>`;
+inner+=`<div class="slot-label-predicted">predicted</div></div>`;
+inner+=`<div class="pred-actions">`;
+inner+=`<button class="pred-btn pred-approve" onclick="event.stopPropagation();approvePred(${idx})" title="Approve">✓</button>`;
+inner+=`<button class="pred-btn pred-dismiss" onclick="event.stopPropagation();dismissPred(${idx})" title="Dismiss">✕</button>`;
+inner+=`<button class="pred-btn pred-edit" onclick="event.stopPropagation();editPred(${idx})" title="Edit">···</button>`;
+inner+=`</div>`;
+}
+let bg='';
+if(cat)bg=`background:linear-gradient(90deg,${cat.color}0a,${cat.color}14,${cat.color}08)`;
+else if(showPred)bg=`background:linear-gradient(90deg,${predCat.color}04,${predCat.color}08,${predCat.color}04);color:${predCat.color}`;
+html+=`<div class="time-slot${hourClass}${predClass}" data-idx="${idx}" style="${bg}">${inner}</div>`
 }}
 container.innerHTML=html;
 attachSlotEvents();
 if(isToday()){const now=new Date(),slot=now.getHours()*2+(now.getMinutes()>=30?1:0);document.getElementById('day-view').scrollTo({top:Math.max(0,slot*44-180),behavior:'smooth'})}
+}
+
+function approvePred(idx){
+const predictions=getPredictions(currentDate);
+const pred=predictions[idx];
+if(!pred)return;
+const key=dk(currentDate);
+if(!entries[key])entries[key]={};
+entries[key][idx]={category:pred.category,subcategory:pred.subcategory};
+save();renderDay();
+}
+
+function dismissPred(idx){
+const key=dk(currentDate);
+if(!dismissedPredictions[key])dismissedPredictions[key]={};
+dismissedPredictions[key][idx]=true;
+saveDismissed();renderDay();
+}
+
+function editPred(idx){
+selectedSlots=[idx];openCatModal();
 }
 
 const LONG_PRESS_MS=300,MOVE_THRESHOLD=10;
