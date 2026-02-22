@@ -11,71 +11,92 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>Time Tracker</title>
 <style>
-:root{--bg:#080a0c;--bg-modal:rgba(10,12,14,0.97);--border:rgba(255,255,255,0.06);--border-light:rgba(255,255,255,0.04);--text:rgba(255,255,255,0.88);--text-muted:rgba(255,255,255,0.38);--text-dim:rgba(255,255,255,0.2);--accent:#6b9e9e;--font:'Helvetica Neue',Helvetica,Arial,sans-serif;--safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px)}
+:root{
+--bg:#080a0c;--bg2:rgba(255,255,255,0.03);--bg-modal:rgba(10,12,14,0.97);
+--border:rgba(255,255,255,0.06);--border-light:rgba(255,255,255,0.04);
+--text:rgba(255,255,255,0.88);--text-muted:rgba(255,255,255,0.38);--text-dim:rgba(255,255,255,0.2);
+--accent:#4a8080;--font:'Helvetica Neue',Helvetica,Arial,sans-serif;
+--safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px);
+}
+@media(prefers-color-scheme:light){:root{
+--bg:#f2f2f7;--bg2:rgba(0,0,0,0.04);--bg-modal:rgba(242,242,247,0.97);
+--border:rgba(0,0,0,0.08);--border-light:rgba(0,0,0,0.05);
+--text:rgba(0,0,0,0.85);--text-muted:rgba(0,0,0,0.45);--text-dim:rgba(0,0,0,0.22);--accent:#3a7070;
+}}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font)}
 body{padding-top:var(--safe-top);padding-bottom:var(--safe-bottom)}
 ::-webkit-scrollbar{display:none}
 button,input{font-family:inherit}
-input::placeholder{color:rgba(255,255,255,0.15)}
+input::placeholder{color:var(--text-dim)}
 #app{max-width:480px;margin:0 auto;height:100%;display:flex;flex-direction:column;position:relative}
-.header{flex-shrink:0;background:rgba(8,10,12,0.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--border-light);padding:12px 20px 12px;z-index:50}
-.tabs{display:flex;gap:6px;background:rgba(255,255,255,0.04);border-radius:20px;padding:3px}
-.tab-btn{flex:1;padding:7px 16px;border:none;background:transparent;border-radius:17px;cursor:pointer;font-size:11px;font-weight:500;letter-spacing:0.5px;transition:all 0.2s}
-.tab-btn.active{color:var(--text);background:rgba(255,255,255,0.1)}
-.tab-btn:not(.active){color:var(--text-dim);background:transparent}
-.day-nav{display:flex;align-items:center;justify-content:space-between;margin-top:14px}
+.header{flex-shrink:0;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--border-light);padding:12px 16px;z-index:50}
+.tabs{display:flex;gap:4px;background:var(--bg2);border-radius:20px;padding:3px}
+.tab-btn{flex:1;padding:7px 8px;border:none;background:transparent;border-radius:17px;cursor:pointer;font-size:11px;font-weight:500;letter-spacing:0.3px;transition:all 0.2s}
+.tab-btn.active{color:var(--text);background:color-mix(in srgb,var(--text) 10%,transparent)}
+.tab-btn:not(.active){color:var(--text-dim)}
+.day-nav{display:flex;align-items:center;justify-content:space-between;margin-top:12px}
 .nav-btn{width:32px;height:32px;background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--text-muted);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .day-label{text-align:center}
 .day-label-date{font-size:13px;font-weight:300;letter-spacing:0.5px}
 .day-label-today{font-size:8px;color:var(--accent);font-weight:500;margin-top:3px;letter-spacing:2.5px;text-transform:uppercase}
 .scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.time-slot{height:44px;display:flex;align-items:center;padding:0 16px;gap:14px;position:relative;transition:background 0.15s ease;user-select:none;-webkit-user-select:none;touch-action:auto}
-.time-slot.hour-start{border-bottom:1px solid var(--border-light)}
-.time-slot.selected{background:rgba(107,158,158,0.12)}
-.time-slot.press-active{background:rgba(107,158,158,0.06)}
-.slot-time{font-size:10px;width:56px;flex-shrink:0;letter-spacing:0.3px}
-.slot-time.hour{color:var(--text-muted);font-weight:500}
-.slot-time.half{color:var(--text-dim);font-weight:400}
-.slot-bar{width:2px;height:24px;border-radius:1px;opacity:0.7;flex-shrink:0}
-.slot-label-main{font-size:12px;font-weight:500;letter-spacing:-0.1px;opacity:0.9}
-.slot-label-sub{font-size:9px;color:var(--text-dim);letter-spacing:0.8px;text-transform:uppercase;margin-top:1px}
-.time-slot.predicted{position:relative}
-.time-slot.predicted::before{content:'';position:absolute;inset:0;opacity:0.06;background:repeating-linear-gradient(135deg,transparent,transparent 3px,currentColor 3px,currentColor 4px);pointer-events:none}
-.pred-actions{display:flex;gap:6px;margin-left:auto;flex-shrink:0;align-items:center}
-.pred-btn{width:24px;height:24px;border-radius:12px;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;transition:all 0.15s}
-.pred-approve{background:rgba(107,158,126,0.15);color:rgba(107,188,140,0.7)}
-.pred-approve:active{background:rgba(107,158,126,0.3)}
-.pred-dismiss{background:rgba(255,100,100,0.08);color:rgba(255,140,140,0.5)}
-.pred-dismiss:active{background:rgba(255,100,100,0.2)}
-.pred-edit{background:rgba(255,255,255,0.04);color:var(--text-dim)}
-.pred-edit:active{background:rgba(255,255,255,0.08)}
-.slot-label-predicted{font-size:8px;color:var(--text-dim);letter-spacing:0.8px;text-transform:uppercase;margin-top:1px;font-style:italic}
-.now-line{position:absolute;left:0;right:0;height:1px;opacity:0.4;background:var(--accent);z-index:10;pointer-events:none}
-.now-dot{position:absolute;left:12px;top:-3px;width:6px;height:6px;border-radius:3px;background:var(--accent);opacity:0.6}
-.selection-bar{position:fixed;bottom:calc(20px + var(--safe-bottom));left:50%;transform:translateX(-50%);padding:8px 20px;border-radius:20px;background:rgba(107,158,158,0.2);backdrop-filter:blur(20px);border:1px solid rgba(107,158,158,0.3);color:var(--accent);font-size:11px;font-weight:500;letter-spacing:0.5px;z-index:60;white-space:nowrap;animation:fadeIn 0.15s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+/* Merged blocks */
+.merged-block{display:flex;align-items:center;padding:4px 16px;gap:10px;position:relative;margin:1px 8px;border-radius:6px;touch-action:auto;user-select:none;-webkit-user-select:none}
+.merged-label{font-size:12px;font-weight:500;opacity:0.9}
+.merged-sub{font-size:8px;color:var(--text-dim);letter-spacing:0.6px;text-transform:uppercase;margin-top:1px}
+.merged-time{font-size:9px;color:var(--text-dim);margin-left:auto;letter-spacing:0.3px;white-space:nowrap}
+
+/* Empty/predicted slots */
+.time-block{height:28px;display:flex;align-items:center;padding:0 16px;gap:10px;position:relative;transition:background 0.15s;user-select:none;-webkit-user-select:none;touch-action:auto}
+.time-block.hour-start{border-top:1px solid var(--border-light)}
+.time-block.selected{background:color-mix(in srgb,var(--accent) 14%,transparent)}
+.time-block.predicted{position:relative}
+.time-block.predicted::before{content:'';position:absolute;inset:0;opacity:0.06;background:repeating-linear-gradient(135deg,transparent,transparent 3px,currentColor 3px,currentColor 4px);pointer-events:none}
+.hour-label{font-size:9px;color:var(--text-dim);width:52px;flex-shrink:0;letter-spacing:0.3px;font-weight:500}
+.pred-actions{display:flex;gap:4px;margin-left:auto;flex-shrink:0}
+.pred-btn{width:22px;height:22px;border-radius:11px;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:10px}
+.pred-approve{background:rgba(80,160,120,0.15);color:rgba(80,170,120,0.8)}
+.pred-dismiss{background:rgba(200,80,80,0.1);color:rgba(200,100,100,0.6)}
+.pred-edit{background:var(--bg2);color:var(--text-dim)}
+
+.now-line{position:absolute;left:0;right:0;height:1px;opacity:0.5;background:var(--accent);z-index:10;pointer-events:none}
+.now-dot{position:absolute;left:12px;top:-3px;width:6px;height:6px;border-radius:3px;background:var(--accent);opacity:0.7}
+.selection-bar{position:fixed;bottom:calc(20px + var(--safe-bottom));left:50%;transform:translateX(-50%);padding:8px 20px;border-radius:20px;background:color-mix(in srgb,var(--accent) 20%,var(--bg));backdrop-filter:blur(20px);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);color:var(--accent);font-size:11px;font-weight:500;z-index:60;white-space:nowrap;animation:fadeUp 0.15s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+/* Mood */
+.mood-section{padding:24px 16px 40px;border-top:1px solid var(--border-light);margin-top:8px;text-align:center}
+.mood-label{font-size:9px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px}
+.mood-faces{display:flex;justify-content:center;gap:12px}
+.mood-face{width:44px;height:44px;border-radius:22px;border:2px solid transparent;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;transition:all 0.2s;opacity:0.45}
+.mood-face.active{opacity:1;transform:scale(1.15)}
+
+/* Modal */
 .modal-overlay{position:fixed;inset:0;z-index:100;display:flex;align-items:flex-end;justify-content:center}
-.modal-bg{position:absolute;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px)}
+.modal-bg{position:absolute;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(8px)}
 .modal-sheet{position:relative;width:100%;max-width:480px;max-height:65vh;overflow-y:auto;background:var(--bg-modal);backdrop-filter:blur(40px);border-radius:16px 16px 0 0;padding:24px 20px calc(36px + var(--safe-bottom));border-top:1px solid var(--border)}
-.modal-handle{width:32px;height:2px;border-radius:1px;background:rgba(255,255,255,0.12);margin:0 auto 20px}
+.modal-handle{width:32px;height:2px;border-radius:1px;background:color-mix(in srgb,var(--text) 12%,transparent);margin:0 auto 20px}
 .modal-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:20px}
 .modal-title{font-size:11px;font-weight:500;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase}
 .modal-action{background:none;border:none;color:var(--text-dim);font-size:10px;cursor:pointer;letter-spacing:1px;text-transform:uppercase;padding:4px 0}
-.cat-option{display:flex;align-items:center;gap:14px;padding:14px 12px;background:transparent;border:none;cursor:pointer;text-align:left;width:100%;border-radius:4px;transition:background 0.15s}
-.cat-option:active{background:rgba(255,255,255,0.04)}
-.cat-option-bar{width:3px;height:20px;border-radius:1.5px;opacity:0.6;flex-shrink:0}
-.cat-option-name{font-size:14px;font-weight:500;color:var(--text);letter-spacing:-0.2px}
-.cat-option-subs{font-size:10px;color:var(--text-dim);margin-top:3px;letter-spacing:0.3px}
+.cat-option{display:flex;align-items:center;gap:14px;padding:14px 12px;background:transparent;border:none;cursor:pointer;text-align:left;width:100%;border-radius:4px}
+.cat-option:active{background:var(--bg2)}
+.cat-option-bar{width:3px;height:20px;border-radius:1.5px;opacity:0.7;flex-shrink:0}
+.cat-option-name{font-size:14px;font-weight:500;color:var(--text)}
+.cat-option-subs{font-size:10px;color:var(--text-dim);margin-top:3px}
 .clear-option{margin-top:8px}
-.clear-option .cat-option-bar{background:rgba(255,100,100,0.3)}
-.clear-option .cat-option-name{font-size:13px;color:rgba(255,140,140,0.6)}
+.clear-option .cat-option-bar{background:rgba(200,80,80,0.3)}
+.clear-option .cat-option-name{color:rgba(200,100,100,0.6);font-size:13px}
 .sub-option{display:flex;align-items:center;gap:14px;padding:14px 12px;background:transparent;border:none;cursor:pointer;text-align:left;width:100%;border-radius:4px}
-.sub-option:active{background:rgba(255,255,255,0.04)}
-.sub-option-bar{width:3px;height:16px;border-radius:1.5px;opacity:0.4;flex-shrink:0}
-.sub-option-name{font-size:14px;color:var(--text);letter-spacing:-0.1px}
+.sub-option:active{background:var(--bg2)}
+.sub-option-bar{width:3px;height:16px;border-radius:1.5px;opacity:0.5;flex-shrink:0}
+.sub-option-name{font-size:14px;color:var(--text)}
+
+/* Manage */
 .manage-overlay{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center}
-.manage-bg{position:absolute;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px)}
+.manage-bg{position:absolute;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px)}
 .manage-panel{position:relative;width:92%;max-width:420px;max-height:80vh;overflow-y:auto;background:var(--bg-modal);border-radius:12px;padding:28px 20px;border:1px solid var(--border)}
 .manage-title{font-size:11px;font-weight:500;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:24px}
 .manage-cat{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border-light)}
@@ -84,61 +105,77 @@ input::placeholder{color:rgba(255,255,255,0.15)}
 .manage-cat-name-bar{width:3px;height:18px;border-radius:1.5px;opacity:0.7}
 .manage-cat-name span{font-size:14px;font-weight:500;color:var(--text)}
 .manage-colors{display:flex;gap:3px;align-items:center}
-.color-dot{width:12px;height:12px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:all 0.15s}
-.color-dot.active{border-color:rgba(255,255,255,0.5)}
-.remove-btn{width:18px;height:18px;border-radius:9px;border:none;background:rgba(255,100,100,0.1);color:rgba(255,140,140,0.5);font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-left:6px}
+.color-dot{width:12px;height:12px;border-radius:6px;cursor:pointer;border:2px solid transparent}
+.color-dot.active{border-color:var(--text)}
+.remove-btn{width:18px;height:18px;border-radius:9px;border:none;background:rgba(200,80,80,0.1);color:rgba(200,100,100,0.6);font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-left:6px}
 .manage-subs{display:flex;flex-wrap:wrap;gap:4px;padding-left:13px}
 .sub-tag{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:3px;font-size:10px;color:var(--text-muted)}
 .sub-tag-remove{cursor:pointer;opacity:0.4;font-size:9px;background:none;border:none;color:inherit;padding:0}
 .add-sub-btn{padding:3px 10px;border-radius:3px;border:1px dashed var(--border);background:transparent;color:var(--text-dim);font-size:10px;cursor:pointer}
-.add-sub-input{width:72px;padding:3px 8px;border-radius:3px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:#fff;font-size:10px;outline:none}
+.add-sub-input{width:72px;padding:3px 8px;border-radius:3px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:10px;outline:none}
 .add-sub-confirm{padding:3px 8px;border-radius:3px;border:none;color:#fff;font-size:10px;cursor:pointer;font-weight:500;opacity:0.8}
 .manage-add-row{display:flex;gap:8px;margin-top:8px}
-.manage-add-input{flex:1;padding:10px 12px;border-radius:4px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:#fff;font-size:12px;outline:none}
-.manage-add-btn{padding:10px 20px;border-radius:4px;border:none;background:var(--accent);color:#fff;font-size:12px;font-weight:500;cursor:pointer;opacity:0.85}
+.manage-add-input{flex:1;padding:10px 12px;border-radius:4px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:12px;outline:none}
+.manage-add-btn{padding:10px 20px;border-radius:4px;border:none;background:var(--accent);color:#fff;font-size:12px;font-weight:500;cursor:pointer}
 .manage-actions{display:flex;gap:8px;margin-top:24px}
 .manage-cancel,.manage-save{flex:1;padding:12px;border-radius:4px;font-size:12px;cursor:pointer}
 .manage-cancel{border:1px solid var(--border);background:transparent;color:var(--text-muted)}
-.manage-save{border:none;background:var(--accent);color:#fff;font-weight:500;opacity:0.85}
+.manage-save{border:none;background:var(--accent);color:#fff;font-weight:500}
+
+/* Summary */
 .summary-pad{padding:20px 16px calc(80px + var(--safe-bottom))}
+.section-title{font-size:9px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px}
 .timeframe-pills{display:flex;gap:2px;margin-bottom:20px;overflow-x:auto}
-.tf-pill{padding:6px 14px;border-radius:3px;flex-shrink:0;border:1px solid transparent;background:transparent;color:var(--text-dim);font-size:10px;font-weight:500;cursor:pointer;letter-spacing:0.5px;text-transform:uppercase;transition:all 0.2s}
-.tf-pill.active{border-color:rgba(107,158,158,0.3);background:rgba(107,158,158,0.07);color:var(--accent)}
+.tf-pill{padding:6px 14px;border-radius:3px;flex-shrink:0;border:1px solid transparent;background:transparent;color:var(--text-dim);font-size:10px;font-weight:500;cursor:pointer;letter-spacing:0.5px;text-transform:uppercase}
+.tf-pill.active{border-color:color-mix(in srgb,var(--accent) 30%,transparent);background:color-mix(in srgb,var(--accent) 7%,transparent);color:var(--accent)}
 .custom-dates{display:flex;gap:8px;margin-bottom:16px;align-items:center}
-.date-input{flex:1;padding:8px 10px;border-radius:4px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:#fff;font-size:11px;outline:none;color-scheme:dark}
+.date-input{flex:1;padding:8px 10px;border-radius:4px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:11px;outline:none}
+@media(prefers-color-scheme:light){.date-input{color-scheme:light}}
+@media(prefers-color-scheme:dark){.date-input{color-scheme:dark}}
 .date-sep{color:var(--text-dim);font-size:10px}
 .date-range-label{font-size:10px;color:var(--text-dim);margin-bottom:20px;text-align:center;letter-spacing:1.5px;text-transform:uppercase}
 .chart-container{padding:20px 12px;margin-bottom:24px;border-top:1px solid var(--border-light);border-bottom:1px solid var(--border-light)}
 .chart-bars{display:flex;align-items:flex-end;gap:2px;height:180px}
 .chart-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
 .chart-stack{display:flex;flex-direction:column-reverse;width:100%;max-width:32px;border-radius:2px;overflow:hidden}
-.chart-seg{transition:height 0.5s cubic-bezier(0.4,0,0.2,1);opacity:0.6}
-.chart-label{font-size:8px;color:var(--text-dim);letter-spacing:0.3px}
+.chart-seg{opacity:0.7}
+.chart-label{font-size:8px;color:var(--text-dim)}
 .pct-toggle{display:flex;justify-content:center;margin-bottom:24px}
 .pct-btn{padding:6px 16px;border:1px solid var(--border);background:transparent;color:var(--text-dim);font-size:9px;cursor:pointer;letter-spacing:1px;text-transform:uppercase;font-weight:500}
-.pct-btn:first-child{border-radius:3px 0 0 3px}
-.pct-btn:last-child{border-radius:0 3px 3px 0}
-.pct-btn.active{background:rgba(255,255,255,0.06);color:var(--text)}
+.pct-btn:first-child{border-radius:3px 0 0 3px}.pct-btn:last-child{border-radius:0 3px 3px 0}
+.pct-btn.active{background:var(--bg2);color:var(--text)}
 .total-display{text-align:center;margin-bottom:28px}
 .total-number{font-size:36px;font-weight:200;letter-spacing:-2px}
 .total-label{font-size:11px;color:var(--text-dim);margin-left:6px;letter-spacing:1.5px;text-transform:uppercase}
 .cat-row{width:100%;display:flex;align-items:center;gap:14px;padding:14px 12px;background:transparent;border:none;cursor:pointer;text-align:left;border-bottom:1px solid var(--border-light)}
-.cat-row:active{background:rgba(255,255,255,0.02)}
-.cat-row-bar{width:3px;height:22px;border-radius:1.5px;opacity:0.5;flex-shrink:0}
-.cat-row-content{flex:1}
-.cat-row-top{display:flex;justify-content:space-between;align-items:baseline}
-.cat-row-name{font-size:13px;font-weight:500;letter-spacing:-0.2px}
-.cat-row-stats{font-size:11px;color:var(--text-muted);letter-spacing:0.3px}
+.cat-row-bar{width:3px;height:22px;border-radius:1.5px;opacity:0.6;flex-shrink:0}
+.cat-row-content{flex:1}.cat-row-top{display:flex;justify-content:space-between;align-items:baseline}
+.cat-row-name{font-size:13px;font-weight:500}.cat-row-stats{font-size:11px;color:var(--text-muted)}
 .cat-row-progress{height:2px;border-radius:1px;background:var(--border-light);margin-top:8px;overflow:hidden}
-.cat-row-fill{height:100%;border-radius:1px;opacity:0.5;transition:width 0.5s ease}
+.cat-row-fill{height:100%;border-radius:1px;opacity:0.6}
 .cat-row-arrow{font-size:8px;color:var(--text-dim);transition:transform 0.2s}
 .cat-row-arrow.expanded{transform:rotate(90deg)}
-.sub-rows{padding-left:29px;background:rgba(255,255,255,0.01)}
+.sub-rows{padding-left:29px;background:var(--bg2)}
 .sub-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid var(--border-light)}
-.sub-row-name{font-size:12px;color:var(--text-muted);letter-spacing:-0.1px}
-.sub-row-stats{font-size:10px;color:var(--text-dim);letter-spacing:0.3px}
-.today-fab{position:fixed;bottom:calc(24px + var(--safe-bottom));right:24px;padding:8px 16px;border-radius:4px;border:1px solid rgba(107,158,158,0.3);background:rgba(8,10,12,0.9);backdrop-filter:blur(20px);color:var(--accent);font-size:9px;font-weight:500;cursor:pointer;letter-spacing:2px;text-transform:uppercase;z-index:40}
-.no-data{color:var(--text-dim);text-align:center;padding:48px;font-size:11px;letter-spacing:1px}
+.sub-row-name{font-size:12px;color:var(--text-muted)}.sub-row-stats{font-size:10px;color:var(--text-dim)}
+
+/* Mood chart in summary */
+.mood-chart{padding:16px 0;margin-bottom:24px;border-top:1px solid var(--border-light);border-bottom:1px solid var(--border-light)}
+.mood-chart svg{display:block}
+
+/* Insights */
+.insights-pad{padding:20px 16px calc(80px + var(--safe-bottom))}
+.insights-key{margin-bottom:20px;padding:16px;border-radius:8px;background:var(--bg2);border:1px solid var(--border)}
+.insights-key-label{font-size:9px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.insights-key-row{display:flex;gap:8px}
+.insights-key-input{flex:1;padding:8px 10px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text);font-size:11px;outline:none}
+.insights-key-btn{padding:8px 16px;border-radius:4px;border:none;background:var(--accent);color:#fff;font-size:11px;font-weight:500;cursor:pointer}
+.insights-gen{width:100%;padding:14px;border-radius:8px;border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);background:color-mix(in srgb,var(--accent) 8%,transparent);color:var(--accent);font-size:13px;font-weight:500;cursor:pointer;margin-bottom:20px}
+.insights-gen:disabled{opacity:0.4}
+.insights-out{font-size:13px;line-height:1.7;color:var(--text-muted);white-space:pre-wrap}
+.insights-loading{text-align:center;padding:40px;color:var(--text-dim);font-size:11px;letter-spacing:1px}
+
+.today-fab{position:fixed;bottom:calc(24px + var(--safe-bottom));right:24px;padding:8px 16px;border-radius:4px;border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(20px);color:var(--accent);font-size:9px;font-weight:500;cursor:pointer;letter-spacing:2px;text-transform:uppercase;z-index:40}
 .hidden{display:none}
 </style>
 </head>
@@ -148,6 +185,7 @@ input::placeholder{color:rgba(255,255,255,0.15)}
 <div class="tabs">
 <button class="tab-btn active" id="tab-day" onclick="switchTab('day')">Day</button>
 <button class="tab-btn" id="tab-summary" onclick="switchTab('summary')">Summary</button>
+<button class="tab-btn" id="tab-insights" onclick="switchTab('insights')">Insights</button>
 </div>
 <div class="day-nav" id="day-nav">
 <button class="nav-btn" onclick="goToDay(-1)">‹</button>
@@ -155,317 +193,297 @@ input::placeholder{color:rgba(255,255,255,0.15)}
 <button class="nav-btn" onclick="goToDay(1)">›</button>
 </div>
 </div>
-<div class="scroll-area" id="day-view"><div id="slots-container" style="position:relative;padding-bottom:80px"></div></div>
+<div class="scroll-area" id="day-view"><div id="slots-container" style="position:relative"></div></div>
 <div class="scroll-area hidden" id="summary-view"><div class="summary-pad" id="summary-content"></div></div>
+<div class="scroll-area hidden" id="insights-view"><div class="insights-pad" id="insights-content"></div></div>
 <button class="today-fab hidden" id="today-fab" onclick="goToToday()">Today</button>
 </div>
 <div class="selection-bar hidden" id="selection-bar"></div>
-<div class="modal-overlay hidden" id="cat-modal">
-<div class="modal-bg" onclick="closeCatModal()"></div>
-<div class="modal-sheet"><div class="modal-handle"></div>
-<div class="modal-header"><span class="modal-title" id="modal-title">Category</span><button class="modal-action" id="modal-action" onclick="openManage()">Manage</button></div>
-<div id="modal-options"></div></div></div>
-<div class="manage-overlay hidden" id="manage-modal">
-<div class="manage-bg" onclick="closeManage()"></div>
-<div class="manage-panel" id="manage-content"></div></div>
+<div class="modal-overlay hidden" id="cat-modal"><div class="modal-bg" onclick="closeCatModal()"></div><div class="modal-sheet"><div class="modal-handle"></div><div class="modal-header"><span class="modal-title" id="modal-title">Category</span><button class="modal-action" id="modal-action" onclick="openManage()">Manage</button></div><div id="modal-options"></div></div></div>
+<div class="manage-overlay hidden" id="manage-modal"><div class="manage-bg" onclick="closeManage()"></div><div class="manage-panel" id="manage-content"></div></div>
 
 <script>
-const PALETTE=["#5a8a8a","#7ba4b8","#6b9e7e","#8fb4a4","#5e7e94","#7e9eaa","#6a9494","#4e7a7a","#8aacac","#5a8e70","#9bbcac","#6e8e9e"];
+const PALETTE=["#4A7C8C","#C47A5A","#6B8F5E","#8E6BA8","#BF7B8A","#5A7FA0","#9B8B5E","#5EA88E","#A06B6B","#7A8FC4","#8C6B4A","#5E8C7A"];
 const DEFAULT_CATS=[
-{id:"work",name:"Work",color:"#5a8a8a",subcategories:["Meetings","Deep Work","Emails","Admin"]},
-{id:"entertainment",name:"Entertainment",color:"#7ba4b8",subcategories:["TV","Film","Gaming","Music","Reading"]},
-{id:"health",name:"Health & Fitness",color:"#6b9e7e",subcategories:["Exercise","Meditation","Meal Prep"]},
-{id:"personal",name:"Personal",color:"#8fb4a4",subcategories:["Family","Errands","Chores","Self-Care"]},
-{id:"sleep",name:"Sleep",color:"#5e7e94",subcategories:["Sleep","Nap"]},
-{id:"learning",name:"Learning",color:"#7e9eaa",subcategories:["Courses","Language Study","Research"]},
-{id:"social",name:"Social",color:"#6a9494",subcategories:["Friends","Events","Dining Out"]}
+{id:"work",name:"Work",color:"#4A7C8C",subcategories:["Meetings","Deep Work","Emails","Admin"]},
+{id:"entertainment",name:"Entertainment",color:"#C47A5A",subcategories:["TV","Film","Gaming","Music","Reading"]},
+{id:"health",name:"Health & Fitness",color:"#6B8F5E",subcategories:["Exercise","Meditation","Meal Prep"]},
+{id:"personal",name:"Personal",color:"#8E6BA8",subcategories:["Family","Errands","Chores","Self-Care"]},
+{id:"sleep",name:"Sleep",color:"#5A7FA0",subcategories:["Sleep","Nap"]},
+{id:"learning",name:"Learning",color:"#9B8B5E",subcategories:["Courses","Language Study","Research"]},
+{id:"social",name:"Social",color:"#BF7B8A",subcategories:["Friends","Events","Dining Out"]}
 ];
+const MOODS=[{id:5,label:'Rad',color:'#4CAF9A',face:'😄'},{id:4,label:'Good',color:'#8BC58B',face:'🙂'},{id:3,label:'Meh',color:'#6AADCF',face:'😐'},{id:2,label:'Bad',color:'#D4955A',face:'😟'},{id:1,label:'Awful',color:'#CF6A6A',face:'😢'}];
 
-let categories=JSON.parse(localStorage.getItem('tt-categories'))||JSON.parse(JSON.stringify(DEFAULT_CATS));
-let entries=JSON.parse(localStorage.getItem('tt-entries'))||{};
+let categories=JSON.parse(localStorage.getItem('tt3-cat'))||null;
+let entries=JSON.parse(localStorage.getItem('tt3-ent'))||null;
+
+// Migrate from v1/v2 (30-min slots) to v3 (15-min slots)
+if(!categories){
+const old=JSON.parse(localStorage.getItem('tt-categories'));
+if(old){categories=old;localStorage.setItem('tt3-cat',JSON.stringify(categories))}
+else{categories=JSON.parse(JSON.stringify(DEFAULT_CATS))}
+}
+if(!entries){
+const old=JSON.parse(localStorage.getItem('tt-entries'));
+if(old){
+entries={};
+Object.entries(old).forEach(([dateKey,dayData])=>{
+entries[dateKey]={};
+Object.entries(dayData).forEach(([slotIdx,val])=>{
+// Old: slot 0=00:00, 1=00:30 (30min). New: slot 0=00:00, 1=00:15 (15min)
+// Each old slot maps to 2 new slots: oldIdx*2 and oldIdx*2+1
+const newBase=parseInt(slotIdx)*2;
+entries[dateKey][newBase]=val;
+entries[dateKey][newBase+1]=JSON.parse(JSON.stringify(val));
+});
+});
+localStorage.setItem('tt3-ent',JSON.stringify(entries));
+}else{entries={}}
+}
+
+let moods=JSON.parse(localStorage.getItem('tt3-mood'))||{};
+let dismissedPred=JSON.parse(localStorage.getItem('tt3-dism'))||{};
+let apiKey=localStorage.getItem('tt3-key')||'';
 let currentDate=new Date();currentDate.setHours(0,0,0,0);
 let currentTab='day',selectedSlots=[],modalStep='category',modalSelectedCat=null;
-let pressTimer=null,pressStartIdx=null,selectionMode=false,selectionStartIdx=null,selectionEndIdx=null;
+let pressTimer=null,pressStartIdx=null,selectionMode=false,selStartIdx=null,selEndIdx=null;
 let pressStartY=0,pressStartX=0,pressMovedTooFar=false;
-let touchStartX=0,touchStartY=0;
-let summaryTimeframe='week',summaryCustomStart='',summaryCustomEnd='',summaryPercentMode='tracked',summaryExpandedCats={};
-let dismissedPredictions=JSON.parse(localStorage.getItem('tt-dismissed'))||{};
-
-function saveDismissed(){localStorage.setItem('tt-dismissed',JSON.stringify(dismissedPredictions))}
-
-/* ═══════ PREDICTION ENGINE ═══════ */
-function getPredictions(targetDate){
-const predictions={};
-const targetDow=targetDate.getDay();
-const targetKey=dk(targetDate);
-
-// Algorithm 1: Weekday patterns — check last 4 same-weekday occurrences
-const weekdayDates=[];
-let d=addD(targetDate,-1);
-for(let i=0;i<28&&weekdayDates.length<4;i++){
-if(d.getDay()===targetDow)weekdayDates.push(dk(d));
-d=addD(d,-1);
-}
-
-if(weekdayDates.length>=3){
-for(let slot=0;slot<48;slot++){
-const counts={};
-let total=0;
-weekdayDates.forEach(dkey=>{
-const e=entries[dkey]?entries[dkey][slot]:null;
-if(e&&e.category){
-const k=`${e.category}|${e.subcategory||''}`;
-counts[k]=(counts[k]||0)+1;
-total++;
-}
-});
-// Need 3 of 4 (or 2 of 3, or 3 of 3) matching same activity
-Object.entries(counts).forEach(([k,c])=>{
-const needed=weekdayDates.length>=4?3:2;
-if(c>=needed){
-const[cat,sub]=k.split('|');
-predictions[slot]={category:cat,subcategory:sub||null,confidence:c/weekdayDates.length,source:'weekday'};
-}
-});
-}
-}
-
-// Algorithm 2: Daily patterns — check last 7 days, need 5 of 7
-const dailyDates=[];
-d=addD(targetDate,-1);
-for(let i=0;i<7;i++){dailyDates.push(dk(d));d=addD(d,-1)}
-
-for(let slot=0;slot<48;slot++){
-if(predictions[slot])continue; // weekday pattern already found, it's more specific
-const counts={};
-dailyDates.forEach(dkey=>{
-const e=entries[dkey]?entries[dkey][slot]:null;
-if(e&&e.category){
-const k=`${e.category}|${e.subcategory||''}`;
-counts[k]=(counts[k]||0)+1;
-}
-});
-Object.entries(counts).forEach(([k,c])=>{
-if(c>=5){
-const[cat,sub]=k.split('|');
-predictions[slot]={category:cat,subcategory:sub||null,confidence:c/7,source:'daily'};
-}
-});
-}
-
-// Filter out dismissed predictions for this date
-const dismissed=dismissedPredictions[targetKey]||{};
-Object.keys(dismissed).forEach(slot=>{delete predictions[slot]});
-
-return predictions;
-}
+let summaryTF='week',sumCustomS='',sumCustomE='',sumPctMode='tracked',sumExpCats={};
 
 const DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-const DAYS_SHORT=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
-const MONTHS_SHORT=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const DS=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const MO=["January","February","March","April","May","June","July","August","September","October","November","December"];
+const MS=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 function dk(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
 function addD(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r}
 function isToday(){return dk(currentDate)===dk(new Date())}
-function save(){localStorage.setItem('tt-entries',JSON.stringify(entries));localStorage.setItem('tt-categories',JSON.stringify(categories))}
-function formatD(d){return`${DAYS[d.getDay()]}, ${MONTHS[d.getMonth()]} ${d.getDate()}`}
-function formatShort(d){return`${MONTHS_SHORT[d.getMonth()]} ${d.getDate()}`}
-function fmt12(h,half){const p=h>=12?'PM':'AM';let h12=h%12;if(h12===0)h12=12;return`${h12}:${half===0?'00':'30'} ${p}`}
+function save(){localStorage.setItem('tt3-ent',JSON.stringify(entries));localStorage.setItem('tt3-cat',JSON.stringify(categories));localStorage.setItem('tt3-mood',JSON.stringify(moods))}
+function saveDism(){localStorage.setItem('tt3-dism',JSON.stringify(dismissedPred))}
+function fmtD(d){return`${DAYS[d.getDay()]}, ${MO[d.getMonth()]} ${d.getDate()}`}
+function fmtS(d){return`${MS[d.getMonth()]} ${d.getDate()}`}
+function fmt12(slot){const tm=slot*15,h=Math.floor(tm/60),m=tm%60,p=h>=12?'PM':'AM';let h2=h%12;if(!h2)h2=12;return`${h2}:${String(m).padStart(2,'0')} ${p}`}
 function haptic(){if(navigator.vibrate)navigator.vibrate(10)}
+
+function getPredictions(td){
+const pr={},dow=td.getDay(),tkey=dk(td);
+const wD=[];let d=addD(td,-1);for(let i=0;i<28&&wD.length<4;i++){if(d.getDay()===dow)wD.push(dk(d));d=addD(d,-1)}
+if(wD.length>=3){for(let s=0;s<96;s++){const ct={};wD.forEach(k=>{const e=entries[k]?entries[k][s]:null;if(e&&e.category){const key=e.category+'|'+(e.subcategory||'');ct[key]=(ct[key]||0)+1}});Object.entries(ct).forEach(([k,c])=>{if(c>=(wD.length>=4?3:2)){const p=k.split('|');pr[s]={category:p[0],subcategory:p[1]||null}}})}}
+const dD=[];d=addD(td,-1);for(let i=0;i<7;i++){dD.push(dk(d));d=addD(d,-1)}
+for(let s=0;s<96;s++){if(pr[s])continue;const ct={};dD.forEach(k=>{const e=entries[k]?entries[k][s]:null;if(e&&e.category){const key=e.category+'|'+(e.subcategory||'');ct[key]=(ct[key]||0)+1}});Object.entries(ct).forEach(([k,c])=>{if(c>=5){const p=k.split('|');pr[s]={category:p[0],subcategory:p[1]||null}}})}
+const dis=dismissedPred[tkey]||{};Object.keys(dis).forEach(s=>{delete pr[s]});return pr;
+}
 
 function switchTab(tab){
 currentTab=tab;
-document.getElementById('tab-day').className=tab==='day'?'tab-btn active':'tab-btn';
-document.getElementById('tab-summary').className=tab==='summary'?'tab-btn active':'tab-btn';
-document.getElementById('day-view').className=tab==='day'?'scroll-area':'scroll-area hidden';
-document.getElementById('summary-view').className=tab==='summary'?'scroll-area':'scroll-area hidden';
+['day','summary','insights'].forEach(t=>{
+document.getElementById('tab-'+t).className=tab===t?'tab-btn active':'tab-btn';
+document.getElementById(t==='day'?'day-view':t==='summary'?'summary-view':'insights-view').className=tab===t?'scroll-area':'scroll-area hidden';
+});
 document.getElementById('day-nav').className=tab==='day'?'day-nav':'day-nav hidden';
-if(tab==='day'){renderDay();updateFab()}else{renderSummary();document.getElementById('today-fab').className='today-fab hidden'}
+document.getElementById('today-fab').className=tab==='day'&&!isToday()?'today-fab':'today-fab hidden';
+if(tab==='day')renderDay();else if(tab==='summary')renderSummary();else renderInsights();
 }
-
-function goToDay(o){currentDate=addD(currentDate,o);renderDay();updateFab()}
-function goToToday(){currentDate=new Date();currentDate.setHours(0,0,0,0);renderDay();updateFab()}
-function updateFab(){document.getElementById('today-fab').className=isToday()?'today-fab hidden':'today-fab'}
+function goToDay(o){currentDate=addD(currentDate,o);renderDay();document.getElementById('today-fab').className=isToday()?'today-fab hidden':'today-fab'}
+function goToToday(){currentDate=new Date();currentDate.setHours(0,0,0,0);renderDay();document.getElementById('today-fab').className='today-fab hidden'}
 
 function renderDay(){
-document.getElementById('day-label-date').textContent=formatD(currentDate);
+document.getElementById('day-label-date').textContent=fmtD(currentDate);
 document.getElementById('day-label-today').className=isToday()?'day-label-today':'day-label-today hidden';
-const key=dk(currentDate),dayE=entries[key]||{},container=document.getElementById('slots-container');
-const predictions=getPredictions(currentDate);
+const key=dk(currentDate),dayE=entries[key]||{},c=document.getElementById('slots-container');
+const preds=getPredictions(currentDate);
 let html='';
-if(isToday()){const now=new Date(),mins=now.getHours()*60+now.getMinutes(),top=(mins/30)*44;html+=`<div class="now-line" style="top:${top}px"><div class="now-dot"></div></div>`}
-for(let h=0;h<24;h++){for(let half=0;half<2;half++){
-const idx=h*2+half,entry=dayE[idx],pred=predictions[idx];
-const hasEntry=entry&&entry.category;
-const cat=hasEntry?categories.find(c=>c.id===entry.category):null;
-const predCat=(!hasEntry&&pred)?categories.find(c=>c.id===pred.category):null;
-const showPred=!hasEntry&&predCat;
-const time=fmt12(h,half),hourClass=half===0?' hour-start':'',timeClass=half===0?'hour':'half';
-const predClass=showPred?' predicted':'';
-let inner=`<span class="slot-time ${timeClass}">${time}</span>`;
+if(isToday()){const now=new Date(),mins=now.getHours()*60+now.getMinutes(),top=(mins/15)*28;html+=`<div class="now-line" style="top:${top}px"><div class="now-dot"></div></div>`}
+let s=0;
+while(s<96){
+const entry=dayE[s],hasE=entry&&entry.category;
+const cat=hasE?categories.find(x=>x.id===entry.category):null;
+const pred=preds[s],pCat=(!hasE&&pred)?categories.find(x=>x.id===pred.category):null;
 if(cat){
-inner+=`<div class="slot-bar" style="background:${cat.color}"></div><div><div class="slot-label-main" style="color:${cat.color}">${entry.subcategory||cat.name}</div>`;
-if(entry.subcategory)inner+=`<div class="slot-label-sub">${cat.name}</div>`;
-inner+='</div>';
-}else if(showPred){
-inner+=`<div class="slot-bar" style="background:${predCat.color};opacity:0.35"></div><div><div class="slot-label-main" style="color:${predCat.color};opacity:0.45">${pred.subcategory||predCat.name}</div>`;
-inner+=`<div class="slot-label-predicted">predicted</div></div>`;
-inner+=`<div class="pred-actions">`;
-inner+=`<button class="pred-btn pred-approve" onclick="event.stopPropagation();approvePred(${idx})" title="Approve">✓</button>`;
-inner+=`<button class="pred-btn pred-dismiss" onclick="event.stopPropagation();dismissPred(${idx})" title="Dismiss">✕</button>`;
-inner+=`<button class="pred-btn pred-edit" onclick="event.stopPropagation();editPred(${idx})" title="Edit">···</button>`;
-inner+=`</div>`;
-}
-let bg='';
-if(cat)bg=`background:linear-gradient(90deg,${cat.color}0a,${cat.color}14,${cat.color}08)`;
-else if(showPred)bg=`background:linear-gradient(90deg,${predCat.color}04,${predCat.color}08,${predCat.color}04);color:${predCat.color}`;
-html+=`<div class="time-slot${hourClass}${predClass}" data-idx="${idx}" style="${bg}">${inner}</div>`
-}}
-container.innerHTML=html;
-attachSlotEvents();
-if(isToday()){const now=new Date(),slot=now.getHours()*2+(now.getMinutes()>=30?1:0);document.getElementById('day-view').scrollTo({top:Math.max(0,slot*44-180),behavior:'smooth'})}
-}
-
-function approvePred(idx){
-const predictions=getPredictions(currentDate);
-const pred=predictions[idx];
-if(!pred)return;
-const key=dk(currentDate);
-if(!entries[key])entries[key]={};
-entries[key][idx]={category:pred.category,subcategory:pred.subcategory};
-save();renderDay();
-}
-
-function dismissPred(idx){
-const key=dk(currentDate);
-if(!dismissedPredictions[key])dismissedPredictions[key]={};
-dismissedPredictions[key][idx]=true;
-saveDismissed();renderDay();
-}
-
-function editPred(idx){
-selectedSlots=[idx];openCatModal();
-}
-
-const LONG_PRESS_MS=300,MOVE_THRESHOLD=10;
-
-function attachSlotEvents(){
-const c=document.getElementById('slots-container');
-c.addEventListener('touchstart',onTS,{passive:true});
-c.addEventListener('touchmove',onTM,{passive:false});
-c.addEventListener('touchend',onTE,{passive:true});
-c.addEventListener('mousedown',onMD);
-c.addEventListener('mousemove',onMM);
-c.addEventListener('mouseup',onMU);
-}
-
-function gsi(el){const s=el.closest('.time-slot');return s?parseInt(s.dataset.idx):null}
-function gsip(x,y){const el=document.elementFromPoint(x,y);return el?gsi(el):null}
-
-function onTS(e){
-if(selectionMode)return;
-const idx=gsi(e.target);if(idx===null)return;
-pressStartIdx=idx;pressStartX=e.touches[0].clientX;pressStartY=e.touches[0].clientY;pressMovedTooFar=false;
-const s=document.querySelector(`.time-slot[data-idx="${idx}"]`);if(s)s.classList.add('press-active');
-pressTimer=setTimeout(()=>{if(!pressMovedTooFar)enterSel(idx)},LONG_PRESS_MS);
-}
-
-function onTM(e){
-if(selectionMode){e.preventDefault();const t=e.touches[0],idx=gsip(t.clientX,t.clientY);if(idx!==null&&idx!==selectionEndIdx){selectionEndIdx=idx;hlSel();updBar()}return}
-if(pressTimer){const dx=e.touches[0].clientX-pressStartX,dy=e.touches[0].clientY-pressStartY;if(Math.abs(dx)>MOVE_THRESHOLD||Math.abs(dy)>MOVE_THRESHOLD){pressMovedTooFar=true;clearTimeout(pressTimer);pressTimer=null;clrPress()}}
-}
-
-function onTE(e){
-clearTimeout(pressTimer);pressTimer=null;clrPress();
-if(selectionMode){finSel();return}
-if(!pressMovedTooFar&&pressStartIdx!==null){
-const dx=e.changedTouches[0].clientX-pressStartX,dy=e.changedTouches[0].clientY-pressStartY;
-if(Math.abs(dx)<MOVE_THRESHOLD&&Math.abs(dy)<MOVE_THRESHOLD){selectedSlots=[pressStartIdx];openCatModal()}
-else if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.5){goToDay(dx<0?1:-1)}
-}
-pressStartIdx=null;
-}
-
-function onMD(e){const idx=gsi(e.target);if(idx===null)return;pressStartIdx=idx;pressStartX=e.clientX;pressStartY=e.clientY;pressMovedTooFar=false;pressTimer=setTimeout(()=>{if(!pressMovedTooFar)enterSel(idx)},LONG_PRESS_MS)}
-function onMM(e){if(selectionMode){const idx=gsip(e.clientX,e.clientY);if(idx!==null&&idx!==selectionEndIdx){selectionEndIdx=idx;hlSel();updBar()}return}if(pressTimer){const dx=e.clientX-pressStartX,dy=e.clientY-pressStartY;if(Math.abs(dx)>MOVE_THRESHOLD||Math.abs(dy)>MOVE_THRESHOLD){pressMovedTooFar=true;clearTimeout(pressTimer);pressTimer=null}}}
-function onMU(){clearTimeout(pressTimer);pressTimer=null;if(selectionMode){finSel();return}if(!pressMovedTooFar&&pressStartIdx!==null){selectedSlots=[pressStartIdx];openCatModal()}pressStartIdx=null}
-
-function enterSel(idx){selectionMode=true;selectionStartIdx=idx;selectionEndIdx=idx;haptic();document.getElementById('day-view').style.overflow='hidden';hlSel();updBar();document.getElementById('selection-bar').classList.remove('hidden')}
-function hlSel(){const min=Math.min(selectionStartIdx,selectionEndIdx),max=Math.max(selectionStartIdx,selectionEndIdx);document.querySelectorAll('.time-slot').forEach(el=>{const i=parseInt(el.dataset.idx);if(i>=min&&i<=max)el.classList.add('selected');else el.classList.remove('selected')})}
-function updBar(){const min=Math.min(selectionStartIdx,selectionEndIdx),max=Math.max(selectionStartIdx,selectionEndIdx),count=max-min+1,hours=(count*0.5).toFixed(1),sH=Math.floor(min/2),sHf=min%2,eS=max+1,eH=Math.floor(eS/2),eHf=eS%2;document.getElementById('selection-bar').textContent=`${fmt12(sH,sHf)} – ${fmt12(eH,eHf)}  ·  ${hours}h`}
-function finSel(){const min=Math.min(selectionStartIdx,selectionEndIdx),max=Math.max(selectionStartIdx,selectionEndIdx);selectedSlots=[];for(let i=min;i<=max;i++)selectedSlots.push(i);document.getElementById('day-view').style.overflow='';document.querySelectorAll('.selected').forEach(el=>el.classList.remove('selected'));document.getElementById('selection-bar').classList.add('hidden');selectionMode=false;selectionStartIdx=null;selectionEndIdx=null;openCatModal()}
-function clrPress(){document.querySelectorAll('.press-active').forEach(el=>el.classList.remove('press-active'))}
-
-function openCatModal(){modalStep='category';modalSelectedCat=null;renderCatModal();document.getElementById('cat-modal').classList.remove('hidden')}
-function closeCatModal(){document.getElementById('cat-modal').classList.add('hidden');selectedSlots=[]}
-function renderCatModal(){
-const title=document.getElementById('modal-title'),action=document.getElementById('modal-action'),opts=document.getElementById('modal-options');
-if(modalStep==='category'){
-title.textContent='Category';action.textContent='Manage';action.onclick=openManage;
-let h='';categories.forEach(c=>{h+=`<button class="cat-option" onclick="selectCategory('${c.id}')"><div class="cat-option-bar" style="background:${c.color}"></div><div><div class="cat-option-name">${c.name}</div><div class="cat-option-subs">${c.subcategories.join('  ·  ')}</div></div></button>`});
-h+=`<button class="cat-option clear-option" onclick="assignSlots(null,null)"><div class="cat-option-bar"></div><div class="cat-option-name">Clear</div></button>`;opts.innerHTML=h;
+let end=s+1;while(end<96&&dayE[end]&&dayE[end].category===entry.category&&dayE[end].subcategory===entry.subcategory)end++;
+const h=(end-s)*28;
+html+=`<div class="merged-block" data-idx-start="${s}" data-idx-end="${end-1}" style="height:${h}px;min-height:${h}px;background:color-mix(in srgb,${cat.color} 10%,transparent);border-left:3px solid color-mix(in srgb,${cat.color} 60%,transparent)">`;
+html+=`<div><div class="merged-label" style="color:${cat.color}">${entry.subcategory||cat.name}</div>`;
+if(entry.subcategory)html+=`<div class="merged-sub">${cat.name}</div>`;
+html+=`</div><span class="merged-time">${fmt12(s)} – ${fmt12(end)}</span></div>`;
+s=end;
+}else if(pCat){
+const isH=s%4===0;
+html+=`<div class="time-block predicted${isH?' hour-start':''}" data-idx="${s}" style="color:${pCat.color};background:color-mix(in srgb,${pCat.color} 5%,transparent)">`;
+html+=isH?`<span class="hour-label">${fmt12(s)}</span>`:`<span class="hour-label"></span>`;
+html+=`<span style="color:${pCat.color};opacity:0.4;font-size:10px">${pred.subcategory||pCat.name}</span>`;
+html+=`<div class="pred-actions"><button class="pred-btn pred-approve" onclick="event.stopPropagation();apprvP(${s})">✓</button><button class="pred-btn pred-dismiss" onclick="event.stopPropagation();dismP(${s})">✕</button><button class="pred-btn pred-edit" onclick="event.stopPropagation();editP(${s})">···</button></div></div>`;
+s++;
 }else{
-const cat=categories.find(c=>c.id===modalSelectedCat);title.textContent=cat.name;action.textContent='Back';action.onclick=()=>{modalStep='category';renderCatModal()};
-let h='';cat.subcategories.forEach(sub=>{h+=`<button class="sub-option" onclick="assignSlots('${cat.id}','${sub}')"><div class="sub-option-bar" style="background:${cat.color}"></div><div class="sub-option-name">${sub}</div></button>`});opts.innerHTML=h;
+const isH=s%4===0;
+html+=`<div class="time-block${isH?' hour-start':''}" data-idx="${s}">`;
+if(isH)html+=`<span class="hour-label">${fmt12(s)}</span>`;
+html+=`</div>`;s++;
 }}
-function selectCategory(id){modalSelectedCat=id;modalStep='subcategory';renderCatModal()}
-function assignSlots(catId,sub){const key=dk(currentDate);if(!entries[key])entries[key]={};selectedSlots.forEach(idx=>{if(catId===null)delete entries[key][idx];else entries[key][idx]={category:catId,subcategory:sub}});save();closeCatModal();renderDay()}
-
-let manageCats=[],manageAddingSubTo=null;
-function openManage(){closeCatModal();manageCats=JSON.parse(JSON.stringify(categories));manageAddingSubTo=null;renderManage();document.getElementById('manage-modal').classList.remove('hidden')}
-function closeManage(){document.getElementById('manage-modal').classList.add('hidden')}
-function renderManage(){
-let h=`<div class="manage-title">Manage Categories</div>`;
-manageCats.forEach((cat,ci)=>{
-h+=`<div class="manage-cat"><div class="manage-cat-header"><div class="manage-cat-name"><div class="manage-cat-name-bar" style="background:${cat.color}"></div><span>${cat.name}</span></div><div class="manage-colors">`;
-PALETTE.slice(0,8).forEach(c=>{h+=`<div class="color-dot${cat.color===c?' active':''}" style="background:${c}" onclick="manageColor(${ci},'${c}')"></div>`});
-h+=`<button class="remove-btn" onclick="manageCatRemove(${ci})">×</button></div></div><div class="manage-subs">`;
-cat.subcategories.forEach((sub,si)=>{h+=`<span class="sub-tag" style="background:${cat.color}10;border:1px solid ${cat.color}12">${sub}<button class="sub-tag-remove" onclick="manageSubRemove(${ci},${si})">×</button></span>`});
-if(manageAddingSubTo===ci){h+=`<div style="display:flex;gap:4px"><input class="add-sub-input" id="new-sub-input" placeholder="Name" onkeydown="if(event.key==='Enter')manageSubAdd(${ci})"><button class="add-sub-confirm" style="background:${cat.color}" onclick="manageSubAdd(${ci})">Add</button></div>`}
-else{h+=`<button class="add-sub-btn" onclick="manageStartAddSub(${ci})">+</button>`}
-h+=`</div></div>`});
-h+=`<div class="manage-add-row"><input class="manage-add-input" id="new-cat-input" placeholder="New category" onkeydown="if(event.key==='Enter')manageCatAdd()"><button class="manage-add-btn" onclick="manageCatAdd()">Add</button></div>`;
-h+=`<div class="manage-actions"><button class="manage-cancel" onclick="closeManage()">Cancel</button><button class="manage-save" onclick="manageSave()">Save</button></div>`;
-document.getElementById('manage-content').innerHTML=h;
-if(manageAddingSubTo!==null)setTimeout(()=>{const el=document.getElementById('new-sub-input');if(el)el.focus()},50);
+// Mood
+const cm=moods[key];
+html+=`<div class="mood-section"><div class="mood-label">How was your day?</div><div class="mood-faces">`;
+MOODS.forEach(m=>{const a=cm===m.id;html+=`<div class="mood-face${a?' active':''}" style="background:${m.color}${a?'':'30'};border-color:${a?m.color:'transparent'}" onclick="setMood(${m.id})">${m.face}</div>`});
+html+=`</div></div>`;
+c.innerHTML=html;attachEvents();
+if(isToday()){const now=new Date(),sl=Math.floor((now.getHours()*60+now.getMinutes())/15);document.getElementById('day-view').scrollTo({top:Math.max(0,sl*28-180),behavior:'smooth'})}
 }
-function manageColor(ci,color){manageCats[ci].color=color;renderManage()}
-function manageCatRemove(ci){manageCats.splice(ci,1);renderManage()}
-function manageSubRemove(ci,si){manageCats[ci].subcategories.splice(si,1);renderManage()}
-function manageStartAddSub(ci){manageAddingSubTo=ci;renderManage()}
-function manageSubAdd(ci){const input=document.getElementById('new-sub-input');if(!input||!input.value.trim())return;manageCats[ci].subcategories.push(input.value.trim());manageAddingSubTo=null;renderManage()}
-function manageCatAdd(){const input=document.getElementById('new-cat-input');if(!input||!input.value.trim())return;const uc=manageCats.map(c=>c.color);const color=PALETTE.find(c=>!uc.includes(c))||PALETTE[0];manageCats.push({id:`cat_${Date.now()}`,name:input.value.trim(),color,subcategories:[]});renderManage()}
-function manageSave(){categories=manageCats;save();closeManage();if(currentTab==='day')renderDay();else renderSummary()}
+function setMood(id){const k=dk(currentDate);if(moods[k]===id)delete moods[k];else moods[k]=id;save();renderDay()}
+function apprvP(i){const p=getPredictions(currentDate)[i];if(!p)return;const k=dk(currentDate);if(!entries[k])entries[k]={};entries[k][i]={category:p.category,subcategory:p.subcategory};save();renderDay()}
+function dismP(i){const k=dk(currentDate);if(!dismissedPred[k])dismissedPred[k]={};dismissedPred[k][i]=true;saveDism();renderDay()}
+function editP(i){selectedSlots=[i];openCatModal()}
+/* ═══ LONG PRESS ═══ */
+const LPM=300,MTH=10;
+function attachEvents(){const c=document.getElementById('slots-container');c.addEventListener('touchstart',onTS,{passive:true});c.addEventListener('touchmove',onTM,{passive:false});c.addEventListener('touchend',onTE,{passive:true});c.addEventListener('mousedown',onMD);c.addEventListener('mousemove',onMM);c.addEventListener('mouseup',onMU)}
+function gsi(el){const s=el.closest('[data-idx]');if(s)return parseInt(s.dataset.idx);const mb=el.closest('[data-idx-start]');if(mb)return parseInt(mb.dataset.idxStart);return null}
+function gsip(x,y){const el=document.elementFromPoint(x,y);return el?gsi(el):null}
+function onTS(e){if(selectionMode)return;const i=gsi(e.target);if(i===null)return;pressStartIdx=i;pressStartX=e.touches[0].clientX;pressStartY=e.touches[0].clientY;pressMovedTooFar=false;pressTimer=setTimeout(()=>{if(!pressMovedTooFar)enterSel(i)},LPM)}
+function onTM(e){if(selectionMode){e.preventDefault();const t=e.touches[0],i=gsip(t.clientX,t.clientY);if(i!==null&&i!==selEndIdx){selEndIdx=i;hlSel();updBar()}return}if(pressTimer){const dx=e.touches[0].clientX-pressStartX,dy=e.touches[0].clientY-pressStartY;if(Math.abs(dx)>MTH||Math.abs(dy)>MTH){pressMovedTooFar=true;clearTimeout(pressTimer);pressTimer=null}}}
+function onTE(e){clearTimeout(pressTimer);pressTimer=null;if(selectionMode){finSel();return}if(!pressMovedTooFar&&pressStartIdx!==null){const dx=e.changedTouches[0].clientX-pressStartX,dy=e.changedTouches[0].clientY-pressStartY;if(Math.abs(dx)<MTH&&Math.abs(dy)<MTH){selectedSlots=[pressStartIdx];openCatModal()}else if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.5){goToDay(dx<0?1:-1)}}pressStartIdx=null}
+function onMD(e){const i=gsi(e.target);if(i===null)return;pressStartIdx=i;pressStartX=e.clientX;pressStartY=e.clientY;pressMovedTooFar=false;pressTimer=setTimeout(()=>{if(!pressMovedTooFar)enterSel(i)},LPM)}
+function onMM(e){if(selectionMode){const i=gsip(e.clientX,e.clientY);if(i!==null&&i!==selEndIdx){selEndIdx=i;hlSel();updBar()}return}if(pressTimer){const dx=e.clientX-pressStartX,dy=e.clientY-pressStartY;if(Math.abs(dx)>MTH||Math.abs(dy)>MTH){pressMovedTooFar=true;clearTimeout(pressTimer);pressTimer=null}}}
+function onMU(){clearTimeout(pressTimer);pressTimer=null;if(selectionMode){finSel();return}if(!pressMovedTooFar&&pressStartIdx!==null){selectedSlots=[pressStartIdx];openCatModal()}pressStartIdx=null}
+function enterSel(i){selectionMode=true;selStartIdx=i;selEndIdx=i;haptic();document.getElementById('day-view').style.overflow='hidden';hlSel();updBar();document.getElementById('selection-bar').classList.remove('hidden')}
+function hlSel(){const mn=Math.min(selStartIdx,selEndIdx),mx=Math.max(selStartIdx,selEndIdx);document.querySelectorAll('[data-idx]').forEach(el=>{const i=parseInt(el.dataset.idx);el.classList.toggle('selected',i>=mn&&i<=mx)})}
+function updBar(){const mn=Math.min(selStartIdx,selEndIdx),mx=Math.max(selStartIdx,selEndIdx),cnt=mx-mn+1,mins=cnt*15,hh=Math.floor(mins/60),mm=mins%60;document.getElementById('selection-bar').textContent=`${fmt12(mn)} – ${fmt12(mx+1)}  ·  ${hh>0?hh+'h':''}${mm>0?' '+mm+'m':hh===0?'0m':''}`}
+function finSel(){const mn=Math.min(selStartIdx,selEndIdx),mx=Math.max(selStartIdx,selEndIdx);selectedSlots=[];for(let i=mn;i<=mx;i++)selectedSlots.push(i);document.getElementById('day-view').style.overflow='';document.querySelectorAll('.selected').forEach(el=>el.classList.remove('selected'));document.getElementById('selection-bar').classList.add('hidden');selectionMode=false;openCatModal()}
 
-function getDateRange(tf){const today=new Date();today.setHours(0,0,0,0);switch(tf){case'1day':return[today,today];case'workweek':{const d=today.getDay();const mon=addD(today,d===0?-6:1-d);return[mon,addD(mon,4)]}case'week':{const d=today.getDay();return[addD(today,-d),addD(addD(today,-d),6)]}case'month':return[addD(today,-29),today];case'custom':{const s=summaryCustomStart?new Date(summaryCustomStart+'T00:00:00'):today;const e=summaryCustomEnd?new Date(summaryCustomEnd+'T00:00:00'):today;return[s,e]}default:return[today,today]}}
+/* ═══ MODAL ═══ */
+function openCatModal(){modalStep='category';modalSelectedCat=null;renderCM();document.getElementById('cat-modal').classList.remove('hidden')}
+function closeCatModal(){document.getElementById('cat-modal').classList.add('hidden');selectedSlots=[]}
+function renderCM(){
+const t=document.getElementById('modal-title'),a=document.getElementById('modal-action'),o=document.getElementById('modal-options');
+if(modalStep==='category'){t.textContent='Category';a.textContent='Manage';a.onclick=openManage;
+let h='';categories.forEach(c=>{h+=`<button class="cat-option" onclick="selCat('${c.id}')"><div class="cat-option-bar" style="background:${c.color}"></div><div><div class="cat-option-name">${c.name}</div><div class="cat-option-subs">${c.subcategories.join(' · ')}</div></div></button>`});
+h+=`<button class="cat-option clear-option" onclick="assignS(null,null)"><div class="cat-option-bar"></div><div class="cat-option-name">Clear</div></button>`;o.innerHTML=h;
+}else{const cat=categories.find(c=>c.id===modalSelectedCat);t.textContent=cat.name;a.textContent='Back';a.onclick=()=>{modalStep='category';renderCM()};
+let h='';cat.subcategories.forEach(sub=>{h+=`<button class="sub-option" onclick="assignS('${cat.id}','${sub}')"><div class="sub-option-bar" style="background:${cat.color}"></div><div class="sub-option-name">${sub}</div></button>`});o.innerHTML=h}}
+function selCat(id){modalSelectedCat=id;modalStep='subcategory';renderCM()}
+function assignS(cid,sub){const k=dk(currentDate);if(!entries[k])entries[k]={};selectedSlots.forEach(i=>{if(cid===null)delete entries[k][i];else entries[k][i]={category:cid,subcategory:sub}});save();closeCatModal();renderDay()}
+
+/* ═══ MANAGE ═══ */
+let mCats=[],mAddSub=null;
+function openManage(){closeCatModal();mCats=JSON.parse(JSON.stringify(categories));mAddSub=null;renderM();document.getElementById('manage-modal').classList.remove('hidden')}
+function closeManage(){document.getElementById('manage-modal').classList.add('hidden')}
+function renderM(){let h=`<div class="manage-title">Manage Categories</div>`;mCats.forEach((cat,ci)=>{h+=`<div class="manage-cat"><div class="manage-cat-header"><div class="manage-cat-name"><div class="manage-cat-name-bar" style="background:${cat.color}"></div><span>${cat.name}</span></div><div class="manage-colors">`;PALETTE.forEach(c=>{h+=`<div class="color-dot${cat.color===c?' active':''}" style="background:${c}" onclick="mCol(${ci},'${c}')"></div>`});h+=`<button class="remove-btn" onclick="mCatRm(${ci})">×</button></div></div><div class="manage-subs">`;cat.subcategories.forEach((sub,si)=>{h+=`<span class="sub-tag" style="background:color-mix(in srgb,${cat.color} 10%,transparent)">${sub}<button class="sub-tag-remove" onclick="mSubRm(${ci},${si})">×</button></span>`});if(mAddSub===ci){h+=`<div style="display:flex;gap:4px"><input class="add-sub-input" id="nsi" placeholder="Name" onkeydown="if(event.key==='Enter')mSubAdd(${ci})"><button class="add-sub-confirm" style="background:${cat.color}" onclick="mSubAdd(${ci})">Add</button></div>`}else{h+=`<button class="add-sub-btn" onclick="mAddSub=${ci};renderM()">+</button>`}h+=`</div></div>`});h+=`<div class="manage-add-row"><input class="manage-add-input" id="nci" placeholder="New category" onkeydown="if(event.key==='Enter')mCatAdd()"><button class="manage-add-btn" onclick="mCatAdd()">Add</button></div><div class="manage-actions"><button class="manage-cancel" onclick="closeManage()">Cancel</button><button class="manage-save" onclick="mSave()">Save</button></div>`;document.getElementById('manage-content').innerHTML=h;if(mAddSub!==null)setTimeout(()=>{const el=document.getElementById('nsi');if(el)el.focus()},50)}
+function mCol(ci,c){mCats[ci].color=c;renderM()}
+function mCatRm(ci){mCats.splice(ci,1);renderM()}
+function mSubRm(ci,si){mCats[ci].subcategories.splice(si,1);renderM()}
+function mSubAdd(ci){const el=document.getElementById('nsi');if(!el||!el.value.trim())return;mCats[ci].subcategories.push(el.value.trim());mAddSub=null;renderM()}
+function mCatAdd(){const el=document.getElementById('nci');if(!el||!el.value.trim())return;const uc=mCats.map(c=>c.color);const col=PALETTE.find(c=>!uc.includes(c))||PALETTE[0];mCats.push({id:'c_'+Date.now(),name:el.value.trim(),color:col,subcategories:[]});renderM()}
+function mSave(){categories=mCats;save();closeManage();if(currentTab==='day')renderDay();else if(currentTab==='summary')renderSummary()}
+
+/* ═══ SUMMARY ═══ */
+function getDR(tf){const t=new Date();t.setHours(0,0,0,0);switch(tf){case'1day':return[t,t];case'workweek':{const d=t.getDay();const m=addD(t,d===0?-6:1-d);return[m,addD(m,4)]}case'week':{const d=t.getDay();return[addD(t,-d),addD(addD(t,-d),6)]}case'month':return[addD(t,-29),t];case'custom':{const s=sumCustomS?new Date(sumCustomS+'T00:00:00'):t;const e=sumCustomE?new Date(sumCustomE+'T00:00:00'):t;return[s,e]}default:return[t,t]}}
 
 function renderSummary(){
-const[startDate,endDate]=getDateRange(summaryTimeframe);const days=[];let d=new Date(startDate);while(d<=endDate){days.push(new Date(d));d=addD(d,1)}
-const catTotals={};let totalTracked=0;const totalPossible=days.length*48;
-const chartData=days.map(day=>{const dayE=entries[dk(day)]||{};const catCounts={};Object.values(dayE).forEach(entry=>{if(entry?.category){if(!catCounts[entry.category])catCounts[entry.category]={};const sub=entry.subcategory||'_none';catCounts[entry.category][sub]=(catCounts[entry.category][sub]||0)+1;if(!catTotals[entry.category])catTotals[entry.category]={};catTotals[entry.category][sub]=(catTotals[entry.category][sub]||0)+1;totalTracked++}});const slots=Object.entries(catCounts).map(([catId,subs])=>({catId,count:Object.values(subs).reduce((a,b)=>a+b,0)}));let label=DAYS_SHORT[day.getDay()];if(days.length>7)label=`${day.getDate()}`;return{label,slots}});
-const totalBase=summaryPercentMode==='total'?totalPossible:totalTracked;
-const maxTotal=Math.max(...chartData.map(d=>d.slots.reduce((s,sl)=>s+sl.count,0)),1);
+const[sD,eD]=getDR(summaryTF);const days=[];let d=new Date(sD);while(d<=eD){days.push(new Date(d));d=addD(d,1)}
+const catTot={};let totTr=0;const totPos=days.length*96;
+const cData=days.map(day=>{const dE=entries[dk(day)]||{};const cc={};Object.values(dE).forEach(e=>{if(e?.category){if(!cc[e.category])cc[e.category]={};const s=e.subcategory||'_none';cc[e.category][s]=(cc[e.category][s]||0)+1;if(!catTot[e.category])catTot[e.category]={};catTot[e.category][s]=(catTot[e.category][s]||0)+1;totTr++}});return{label:days.length>7?''+day.getDate():DS[day.getDay()],slots:Object.entries(cc).map(([id,subs])=>({catId:id,count:Object.values(subs).reduce((a,b)=>a+b,0)}))}});
+const tBase=sumPctMode==='total'?totPos:totTr;
+const maxT=Math.max(...cData.map(d=>d.slots.reduce((s,x)=>s+x.count,0)),1);
 let h='';
-h+=`<div class="timeframe-pills">`;[['1day','Today'],['workweek','Mon–Fri'],['week','Week'],['month','Month'],['custom','Custom']].forEach(([id,label])=>{h+=`<button class="tf-pill${summaryTimeframe===id?' active':''}" onclick="setTimeframe('${id}')">${label}</button>`});h+=`</div>`;
-if(summaryTimeframe==='custom'){h+=`<div class="custom-dates"><input type="date" class="date-input" value="${summaryCustomStart}" onchange="summaryCustomStart=this.value;renderSummary()"><span class="date-sep">to</span><input type="date" class="date-input" value="${summaryCustomEnd}" onchange="summaryCustomEnd=this.value;renderSummary()"></div>`}
-h+=`<div class="date-range-label">${formatShort(startDate)} — ${formatShort(endDate)}</div>`;
-h+=`<div class="chart-container"><div class="chart-bars">`;chartData.forEach(day=>{const barMax=summaryPercentMode==='total'?48:maxTotal;h+=`<div class="chart-col"><div class="chart-stack">`;day.slots.forEach(sl=>{const cat=categories.find(c=>c.id===sl.catId);const ht=Math.max((sl.count/barMax)*140,sl.count>0?2:0);h+=`<div class="chart-seg" style="height:${ht}px;background:${cat?cat.color:'rgba(255,255,255,0.06)'}"></div>`});h+=`</div><span class="chart-label">${day.label}</span></div>`});h+=`</div></div>`;
-h+=`<div class="pct-toggle"><button class="pct-btn${summaryPercentMode==='tracked'?' active':''}" onclick="setPercentMode('tracked')">Tracked</button><button class="pct-btn${summaryPercentMode==='total'?' active':''}" onclick="setPercentMode('total')">Full Day</button></div>`;
-h+=`<div class="total-display"><span class="total-number">${(totalTracked*0.5).toFixed(1)}</span><span class="total-label">hours tracked</span></div>`;
-const sortedCats=categories.filter(c=>catTotals[c.id]).sort((a,b)=>{const aT=Object.values(catTotals[a.id]||{}).reduce((s,v)=>s+v,0);const bT=Object.values(catTotals[b.id]||{}).reduce((s,v)=>s+v,0);return bT-aT});
-sortedCats.forEach(cat=>{const subs=catTotals[cat.id]||{};const catTotal=Object.values(subs).reduce((s,v)=>s+v,0);const pct=totalBase>0?((catTotal/totalBase)*100).toFixed(1):0;const expanded=summaryExpandedCats[cat.id];
-h+=`<button class="cat-row" onclick="toggleCatExpand('${cat.id}')"><div class="cat-row-bar" style="background:${cat.color}"></div><div class="cat-row-content"><div class="cat-row-top"><span class="cat-row-name" style="color:var(--text)">${cat.name}</span><span class="cat-row-stats">${(catTotal*0.5).toFixed(1)}h · ${pct}%</span></div><div class="cat-row-progress"><div class="cat-row-fill" style="width:${Math.min(pct,100)}%;background:${cat.color}"></div></div></div><span class="cat-row-arrow${expanded?' expanded':''}">▶</span></button>`;
-if(expanded){h+=`<div class="sub-rows">`;Object.entries(subs).sort((a,b)=>b[1]-a[1]).forEach(([sub,count])=>{const subPct=totalBase>0?((count/totalBase)*100).toFixed(1):0;h+=`<div class="sub-row"><span class="sub-row-name">${sub==='_none'?'General':sub}</span><span class="sub-row-stats">${(count*0.5).toFixed(1)}h · ${subPct}%</span></div>`});h+=`</div>`}});
-if(sortedCats.length===0)h+=`<div class="no-data">No data for this period</div>`;
+h+=`<div class="timeframe-pills">`;[['1day','Today'],['workweek','Mon–Fri'],['week','Week'],['month','Month'],['custom','Custom']].forEach(([id,l])=>{h+=`<button class="tf-pill${summaryTF===id?' active':''}" onclick="summaryTF='${id}';renderSummary()">${l}</button>`});h+=`</div>`;
+if(summaryTF==='custom')h+=`<div class="custom-dates"><input type="date" class="date-input" value="${sumCustomS}" onchange="sumCustomS=this.value;renderSummary()"><span class="date-sep">to</span><input type="date" class="date-input" value="${sumCustomE}" onchange="sumCustomE=this.value;renderSummary()"></div>`;
+h+=`<div class="date-range-label">${fmtS(sD)} — ${fmtS(eD)}</div>`;
+
+// Activity chart
+h+=`<div class="chart-container"><div class="chart-bars">`;
+cData.forEach(day=>{const bm=sumPctMode==='total'?96:maxT;h+=`<div class="chart-col"><div class="chart-stack">`;day.slots.forEach(sl=>{const cat=categories.find(c=>c.id===sl.catId);const ht=Math.max((sl.count/bm)*140,sl.count>0?2:0);h+=`<div class="chart-seg" style="height:${ht}px;background:${cat?cat.color:'var(--border)'}"></div>`});h+=`</div><span class="chart-label">${day.label}</span></div>`});
+h+=`</div></div>`;
+h+=`<div class="pct-toggle"><button class="pct-btn${sumPctMode==='tracked'?' active':''}" onclick="sumPctMode='tracked';renderSummary()">Tracked</button><button class="pct-btn${sumPctMode==='total'?' active':''}" onclick="sumPctMode='total';renderSummary()">Full Day</button></div>`;
+h+=`<div class="total-display"><span class="total-number">${(totTr*0.25).toFixed(1)}</span><span class="total-label">hours tracked</span></div>`;
+
+// Mood line chart
+const moodDays=days.map(day=>({label:days.length>7?''+day.getDate():DS[day.getDay()],mood:moods[dk(day)]||null}));
+const hasMood=moodDays.some(d=>d.mood);
+if(hasMood){
+h+=`<div class="mood-chart"><div class="section-title" style="padding:0 12px">Mood</div>`;
+const w=360,ht=100,pad=24;const pts=moodDays.filter(d=>d.mood);
+if(pts.length>=2){
+h+=`<svg viewBox="0 0 ${w} ${ht+pad}" class="mood-chart" style="display:block;width:100%;padding:8px 12px">`;
+// Y axis labels
+MOODS.forEach(m=>{const y=pad/2+(5-m.id)/(4)*(ht-10);h+=`<text x="2" y="${y+3}" font-size="10" fill="${m.color}">${m.face}</text>`});
+// Lines
+const xStep=w/(moodDays.length-1||1);
+let pathD='';let dots='';
+let pi=0;
+moodDays.forEach((d,i)=>{if(!d.mood)return;
+const x=30+i*((w-40)/(moodDays.length-1||1));
+const y=pad/2+(5-d.mood)/(4)*(ht-10);
+const mc=MOODS.find(m=>m.id===d.mood);
+if(pi===0)pathD+=`M${x},${y}`;else pathD+=` L${x},${y}`;
+dots+=`<circle cx="${x}" cy="${y}" r="4" fill="${mc?mc.color:'var(--text-dim)'}"/>`;
+pi++});
+h+=`<path d="${pathD}" fill="none" stroke="var(--accent)" stroke-width="1.5" opacity="0.5"/>`;
+h+=dots;
+h+=`</svg>`}
+h+=`</div>`}
+
+// Category breakdown
+const sCats=categories.filter(c=>catTot[c.id]).sort((a,b)=>{const aT=Object.values(catTot[a.id]||{}).reduce((s,v)=>s+v,0);const bT=Object.values(catTot[b.id]||{}).reduce((s,v)=>s+v,0);return bT-aT});
+sCats.forEach(cat=>{const subs=catTot[cat.id]||{};const ct=Object.values(subs).reduce((s,v)=>s+v,0);const pct=tBase>0?((ct/tBase)*100).toFixed(1):0;const exp=sumExpCats[cat.id];
+h+=`<button class="cat-row" onclick="sumExpCats['${cat.id}']=!sumExpCats['${cat.id}'];renderSummary()"><div class="cat-row-bar" style="background:${cat.color}"></div><div class="cat-row-content"><div class="cat-row-top"><span class="cat-row-name">${cat.name}</span><span class="cat-row-stats">${(ct*0.25).toFixed(1)}h · ${pct}%</span></div><div class="cat-row-progress"><div class="cat-row-fill" style="width:${Math.min(pct,100)}%;background:${cat.color}"></div></div></div><span class="cat-row-arrow${exp?' expanded':''}">▶</span></button>`;
+if(exp){h+=`<div class="sub-rows">`;Object.entries(subs).sort((a,b)=>b[1]-a[1]).forEach(([sub,cnt])=>{const sp=tBase>0?((cnt/tBase)*100).toFixed(1):0;h+=`<div class="sub-row"><span class="sub-row-name">${sub==='_none'?'General':sub}</span><span class="sub-row-stats">${(cnt*0.25).toFixed(1)}h · ${sp}%</span></div>`});h+=`</div>`}});
+if(!sCats.length)h+=`<div class="no-data" style="padding:24px">No data for this period</div>`;
 document.getElementById('summary-content').innerHTML=h;
 }
-function setTimeframe(tf){summaryTimeframe=tf;renderSummary()}
-function setPercentMode(m){summaryPercentMode=m;renderSummary()}
-function toggleCatExpand(id){summaryExpandedCats[id]=!summaryExpandedCats[id];renderSummary()}
 
-renderDay();updateFab();
-if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+/* ═══ INSIGHTS ═══ */
+let insightsResult='';
+function renderInsights(){
+let h='';
+h+=`<div class="insights-key"><div class="insights-key-label">Claude API Key</div><div class="insights-key-row"><input class="insights-key-input" type="password" id="api-key-input" value="${apiKey}" placeholder="sk-ant-..."><button class="insights-key-btn" onclick="saveKey()">Save</button></div></div>`;
+h+=`<button class="insights-gen" id="gen-btn" onclick="generateInsights()" ${apiKey?'':'disabled'}>Generate Insights</button>`;
+if(insightsResult)h+=`<div class="insights-out">${insightsResult}</div>`;
+else if(!apiKey)h+=`<div class="no-data">Enter your Claude API key above to enable AI-powered insights</div>`;
+else h+=`<div class="no-data">Tap "Generate Insights" to analyze your time data</div>`;
+document.getElementById('insights-content').innerHTML=h;
+}
+function saveKey(){const el=document.getElementById('api-key-input');apiKey=el.value.trim();localStorage.setItem('tt3-key',apiKey);renderInsights()}
+
+async function generateInsights(){
+if(!apiKey)return;
+const btn=document.getElementById('gen-btn');btn.disabled=true;btn.textContent='Analyzing...';
+// Gather last 14 days of data
+const summary={};const moodSummary={};
+for(let i=0;i<14;i++){
+const d=addD(new Date(),0-i);d.setHours(0,0,0,0);
+const k=dk(d),dE=entries[k]||{},dayName=DAYS[d.getDay()];
+const cats={};Object.values(dE).forEach(e=>{if(e?.category){const cat=categories.find(c=>c.id===e.category);const name=cat?cat.name:e.category;const sub=e.subcategory||'General';if(!cats[name])cats[name]={};cats[name][sub]=(cats[name][sub]||0)*0.25+0.25}});
+if(Object.keys(cats).length)summary[k+' ('+dayName+')']=cats;
+if(moods[k]){const m=MOODS.find(x=>x.id===moods[k]);moodSummary[k+' ('+dayName+')']= m?m.label:'?'}
+}
+const prompt=`You are a personal time-use coach. Analyze this person's time tracking data from the last 14 days and their daily mood ratings. Be direct, specific, and actionable. Use their actual data.
+
+TIME DATA (hours per activity):
+${JSON.stringify(summary,null,1)}
+
+MOOD RATINGS:
+${JSON.stringify(moodSummary,null,1)}
+
+Provide:
+1. Key patterns you notice (be specific with numbers)
+2. Correlation between activities and mood (which days were best/worst and what was different)
+3. Time that could be better spent — be honest but not harsh, suggest what they could accomplish instead
+4. One specific recommendation for next week
+
+Keep it concise (under 300 words). Use plain text, no markdown headers.`;
+
+try{
+const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,messages:[{role:'user',content:prompt}]})});
+const data=await resp.json();
+if(data.content&&data.content[0])insightsResult=data.content[0].text;
+else if(data.error)insightsResult='Error: '+data.error.message;
+else insightsResult='Unexpected response format.';
+}catch(err){insightsResult='Error: '+err.message}
+renderInsights();
+}
+
+/* ═══ INIT ═══ */
+renderDay();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 setInterval(()=>{if(currentTab==='day'&&isToday())renderDay()},60000);
 </script>
 </body>
