@@ -1,4 +1,4 @@
-const CACHE_NAME = 'time-tracker-v2';
+const CACHE_NAME = 'time-tracker-v3';
 
 self.addEventListener('install', e => {
   self.skipWaiting();
@@ -14,15 +14,15 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
+  // Skip non-GET and API calls
+  if (e.request.method !== 'GET' || e.request.url.includes('api.anthropic.com')) {
+    return;
+  }
   e.respondWith(
-    fetch(e.request)
-      .then(response => {
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then(cache => {
-          cache.put(e.request, clone);
-        });
-        return response;
-      })
-      .catch(() => caches.match(e.request))
+    fetch(e.request).then(resp => {
+      const clone = resp.clone();
+      caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
+      return resp;
+    }).catch(() => caches.match(e.request))
   );
 });
